@@ -37,5 +37,18 @@ function drawSnake() {
   ctx.stroke();
 }
 
-drawWorld();
-drawSnake();
+const printWorld = () => {
+  drawWorld();
+  drawSnake();
+};
+
+const updateWorld = () => {
+  setTimeout(() => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    world.update();
+    printWorld();
+    requestAnimationFrame(updateWorld);
+  }, 100);
+};
+
+updateWorld();
