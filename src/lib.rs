@@ -4,12 +4,21 @@ struct SnakeCell(usize);
 
 struct Snake {
     body: Vec<SnakeCell>,
+    direction: Direction,
+}
+
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
 }
 
 impl Snake {
     fn new(spawn_index: usize) -> Snake {
         Snake {
             body: vec![SnakeCell(spawn_index)],
+            direction: Direction::Right,
         }
     }
 }
@@ -23,12 +32,11 @@ pub struct World {
 
 #[wasm_bindgen]
 impl World {
-    pub fn new() -> World {
-        let width = 8;
+    pub fn new(width: usize, snake_idx: usize) -> World {
         World {
             width,
             size: width * width,
-            snake: Snake::new(10),
+            snake: Snake::new(snake_idx),
         }
     }
 
@@ -42,7 +50,19 @@ impl World {
 
     pub fn update(&mut self) {
         let snake_idx = self.snake_head_idx();
-        self.snake.body[0].0 = (snake_idx + 1) % (self.size);
+
+        match self.snake.direction {
+            Direction::Right=>{
+                self.snake.body[0].0 = (snake_idx + 1) % (self.size);
+            }
+            Direction::Left=>{
+                self.snake.body[0].0 = (snake_idx - 1) % (self.size);
+            }
+            Direction::Up=>{
+                
+            }
+            Direction::Down=>{}
+        }
     }
 }
 

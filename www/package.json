@@ -14,10 +14,10 @@
     "webpack"
   ],
   "dependencies": {
-    "rust-wasm": "file:../pkg",
     "ts-loader": "^9.5.1",
     "webpack": "^5.89.0",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.1",
+    "rust-wasm": "file:../pkg"
   },
   "homepage": "https://github.com/rustwasm/create-wasm-app#readme",
   "devDependencies": {

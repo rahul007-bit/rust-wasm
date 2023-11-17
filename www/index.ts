@@ -1,8 +1,13 @@
 import { World } from "rust-wasm";
 
 const CELL_SIZE = 20;
+const WORLD_W = 8;
+const SNAKE_INDEX = Date.now() % (WORLD_W * WORLD_W);
+const FPS = 3;
 
-const world = World.new();
+console.log(SNAKE_INDEX);
+
+const world = World.new(WORLD_W, SNAKE_INDEX);
 const worldWidth = world.width();
 
 const canvas = <HTMLCanvasElement>document.getElementById("snake-canvas");
@@ -48,7 +53,7 @@ const updateWorld = () => {
     world.update();
     printWorld();
     requestAnimationFrame(updateWorld);
-  }, 100);
+  }, 1000 / FPS);
 };
 
 updateWorld();
