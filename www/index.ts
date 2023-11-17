@@ -1,14 +1,18 @@
-import { World } from "rust-wasm";
+import init, { World, Direction,} from "rust-wasm";
+
+init().then((wasm) => {
 
 const CELL_SIZE = 20;
 const WORLD_W = 8;
 const SNAKE_INDEX = Date.now() % (WORLD_W * WORLD_W);
-const FPS = 3;
+const FPS = 4;
 
-console.log(SNAKE_INDEX);
+
+const memory = wasm.memory;
 
 const world = World.new(WORLD_W, SNAKE_INDEX);
 const worldWidth = world.width();
+
 
 const canvas = <HTMLCanvasElement>document.getElementById("snake-canvas");
 const ctx = canvas.getContext("2d");
@@ -33,12 +37,17 @@ function drawWorld() {
 }
 
 function drawSnake() {
-  const snakeIdx = world.snake_head_idx();
-  const col = snakeIdx % worldWidth;
-  const row = Math.floor(snakeIdx / worldWidth);
+  const snakeCell = world.snake_cells();
+  const snakeLength = world.snake_len();
+  const snakeCellPointer = new Uint32Array(memory.buffer, snakeCell, snakeLength);
+  snakeCellPointer.forEach((cellIdx,i) =>{
 
-  ctx.beginPath();
-  ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    const col = cellIdx % worldWidth;
+    const row = Math.floor(cellIdx / worldWidth);
+    ctx.fillStyle = i === 0 ? "green" : "black";
+    ctx.beginPath();
+    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);}
+  );
   ctx.stroke();
 }
 
@@ -50,10 +59,31 @@ const printWorld = () => {
 const updateWorld = () => {
   setTimeout(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    world.update();
+    world.step();
     printWorld();
     requestAnimationFrame(updateWorld);
   }, 1000 / FPS);
 };
 
+// listen for key-presses
+
+document.addEventListener("keydown", (e) => {
+  switch (e.key) {
+    case "ArrowUp":
+      world.change_direction(Direction.Up);
+      break;
+    case "ArrowRight":
+      world.change_direction(Direction.Right);
+      break;
+    case "ArrowDown":
+      world.change_direction(Direction.Down);
+      break;
+    case "ArrowLeft":
+      world.change_direction(Direction.Left);
+      break;
+  }
+});
+
 updateWorld();
+
+});
