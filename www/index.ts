@@ -3,6 +3,7 @@ import { rnd } from "./utils/rnd";
 
 const stats = document.getElementById("stats");
 const changeStatus = document.getElementById("change-status");
+const score = document.getElementById("score");
 
 init().then((wasm) => {
   const CELL_SIZE = 20;
@@ -46,7 +47,7 @@ init().then((wasm) => {
       snakeLength
     );
     snakeCellPointer
-      .filter((cellIdx) => !(cellIdx !== 0 && cellIdx === snakeCellPointer[0]))
+      .filter((cellIdx,i) => !(i > 0 && cellIdx === snakeCellPointer[0]))
       .forEach((cellIdx, i) => {
         const col = cellIdx % worldWidth;
         const row = Math.floor(cellIdx / worldWidth);
@@ -58,6 +59,21 @@ init().then((wasm) => {
   }
 
   const printWorld = () => {
+    const status = world.status();
+    if (status === Status.Dead || status === Status.Win) {
+      stats.innerText = "Restart"
+      changeStatus.innerText = "Restart";
+      return;
+    }
+
+    if (status === Status.Pause) {
+      stats.innerText = "Paused"
+      changeStatus.innerText = "Resume";
+      return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    score.innerText = world.score().toString();
     drawWorld();
     drawSnake();
     drawReward();
@@ -71,24 +87,11 @@ init().then((wasm) => {
     ctx.beginPath();
     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
     ctx.stroke();
-    const status = world.status();
-    switch (status) {
-      case Status.Win:
-        stats.innerText = "You Win";
-        changeStatus.innerText = "Restart";
-        break;
-      case Status.Dead:
-        stats.innerText = "Game Over";
-        changeStatus.innerText = "Restart";
-        break;
-      default:
-        break;
-    }
+
   };
 
   const updateWorld = () => {
     setTimeout(() => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       world.step();
       printWorld();
       requestAnimationFrame(updateWorld);

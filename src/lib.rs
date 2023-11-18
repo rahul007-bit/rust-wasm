@@ -55,6 +55,7 @@ pub struct World {
     snake: Snake,
     reward_cell: usize,
     status: Status,
+    reward: usize,
 }
 
 #[wasm_bindgen]
@@ -71,6 +72,7 @@ impl World {
             reward_cell: World::gen_reward_cell(size, &body_as_usize),
             snake,
             status: Status::Pause,
+            reward: 0,
         };
 
         new_world
@@ -102,10 +104,15 @@ impl World {
             self.snake.body.iter().map(|cell| cell.0).collect();
         self.reward_cell = World::gen_reward_cell(self.size, &body_as_usize);
         self.status = Status::Pause;
+        self.reward = 0;
     }
 
     pub fn snake_head_idx(&self) -> usize {
         self.snake.body[0].0
+    }
+
+    pub fn score(&self) -> usize {
+        self.reward
     }
 
     pub fn snake_cells(&self) -> *const SnakeCell {
@@ -160,6 +167,7 @@ impl World {
                         let body_as_usize: Vec<usize> =
                             self.snake.body.iter().map(|cell| cell.0).collect();
                         self.reward_cell = World::gen_reward_cell(self.size, &body_as_usize);
+                        self.reward += 1;
                     } else {
                         self.reward_cell = self.size + 1;
                         self.status = Status::Win;
